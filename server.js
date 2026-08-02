@@ -28,6 +28,18 @@ app.use(express.static('public'));
 // GET current schedule
 app.get('/api/schedule', (req, res) => {
     console.log(`Reading schedule file from path: ${FILE_PATH}`);
+  // Create backup with current date and time suffix
+  const now = new Date();
+  const backupFileName = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+  const backupFilePath = FILE_PATH + '.' + backupFileName + '.bak';
+  console.log(`Creating backup of schedule file at: ${backupFilePath}`);
+  fs.copyFile(FILE_PATH, backupFilePath, (err) => {
+    if (err) {
+      console.warn('Warning: Failed to create backup file', err);
+    } else {
+      console.log(`Backup created at ${backupFilePath}`);
+    }
+  });
 
   fs.readFile(FILE_PATH, 'utf8', (err, data) => {
     if (err) {
@@ -49,6 +61,7 @@ app.post('/api/schedule', (req, res) => {
     return res.status(400).json({ error: 'Payload must be an array of schedule items' });
   }
 
+  // Write new schedule
   fs.writeFile(FILE_PATH, JSON.stringify(newSchedule, null, 2), 'utf8', (err) => {
     if (err) {
       return res.status(500).json({ error: 'Failed to write schedule file' });
