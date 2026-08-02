@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule Manager</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 1050px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1, h2 { margin-top: 0; }
+    
+    /* Add Entry Form Styling */
+    .add-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 24px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 0.85rem; font-weight: bold; color: #475569; }
+
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+    th { background: #f0f2f5; }
+    input, select { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    
+    button { cursor: pointer; border: none; padding: 8px 14px; border-radius: 4px; font-weight: bold; }
+    .btn-add { background: #10b981; color: white; width: 100%; margin-top: 8px; }
+    .btn-save { background: #2563eb; color: white; font-size: 1rem; }
+    .btn-del { background: #ef4444; color: white; }
+    .actions { display: flex; justify-content: space-between; align-items: center; }
+    #status { font-weight: bold; margin-left: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Schedule Manager</h1>
+
+    <!-- Add Entry Form -->
+    <div class="add-card">
+      <h2>Add New Entry</h2>
+      <form id="addEntryForm" onsubmit="handleFormSubmit(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Check Day</label>
+            <select id="newCheckDay" required></select>
+          </div>
+          <div class="form-group">
+            <label>Check Time</label>
+            <input type="text" id="newCheckTime" placeholder="09:30" required>
+          </div>
+          <div class="form-group">
+            <label>Weekday</label>
+            <select id="newWeekday" required></select>
+          </div>
+          <div class="form-group">
+            <label>Start Time</label>
+            <input type="text" id="newStartTime" placeholder="07:30:00" required>
+          </div>
+          <div class="form-group">
+            <label>Class Name</label>
+            <input type="text" id="newName" placeholder="Aqua Fitness" required>
+          </div>
+          <div class="form-group">
+            <label>Club ID</label>
+            <input type="text" id="newClubId" value="1" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-add">+ Add to Table</button>
+      </form>
+    </div>
+
+    <!-- Schedule Table -->
+    <table id="scheduleTable">
+      <thead>
+        <tr>
+          <th>Check Day</th>
+          <th>Check Time</th>
+          <th>Weekday</th>
+          <th>Start Time</th>
+          <th>Class Name</th>
+          <th>Club ID</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <div class="actions">
+      <button class="btn-save" onclick="saveData()">Save Changes to File</button>
+      <span id="status"></span>
+    </div>
+  </div>
+
+  <script>
+    const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+
+    function createDaySelectOptions(selectedValue = "") {
+      return days.map(day => `
+        <option value="${day}" ${day === selectedValue.toLowerCase() ? 'selected' : ''}>
+          ${day}
+        </option>
+      `).join('');
+    }
+
+    // Initialize day dropdowns in the form
+    document.getElementById('newCheckDay').innerHTML = createDaySelectOptions('saturday');
+    document.getElementById('newWeekday').innerHTML = createDaySelectOptions('monday');
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/schedule');
+        const data = await res.json();
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        data.forEach(item => addRow(item));
+      } catch (err) {
+        console.error("Failed to load schedule:", err);
+      }
+    }
+
+    function addRow(item = {}) {
+      const tbody = document.getElementById('tableBody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <select>
+            ${createDaySelectOptions(item.checkday || 'saturday')}
+          </select>
+        </td>
+        <td><input type="text" value="${item.checkTime || ''}" placeholder="09:30"></td>
+        <td>
+          <select>
+            ${createDaySelectOptions(item.weekday || 'monday')}
+          </select>
+        </td>
+        <td><input type="text" value="${item.startTime || ''}" placeholder="07:30:00"></td>
+        <td><input type="text" value="${item.name || ''}" placeholder="Class name"></td>
+        <td><input type="text" value="${item.clubId || '1'}" placeholder="1"></td>
+        <td><button type="button" class="btn-del" onclick="this.closest('tr').remove()">Delete</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    // Handles form submission to create a new row
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const newEntry = {
+        checkday: document.getElementById('newCheckDay').value,
+        checkTime: document.getElementById('newCheckTime').value.trim(),
+        weekday: document.getElementById('newWeekday').value,
+        startTime: document.getElementById('newStartTime').value.trim(),
+        name: document.getElementById('newName').value.trim(),
+        clubId: document.getElementById('newClubId').value.trim()
+      };
+
+      // Append row to table
+      addRow(newEntry);
+
+      // Clear text inputs (leave clubId as default)
+      document.getElementById('newCheckTime').value = '';
+      document.getElementById('newStartTime').value = '';
+      document.getElementById('newName').value = '';
+    }
+
+    async function saveData() {
+      const rows = document.querySelectorAll('#tableBody tr');
+      const updatedData = Array.from(rows).map(row => {
+        const selects = row.querySelectorAll('select');
+        const inputs = row.querySelectorAll('input');
+
+        return {
+          checkday: selects[0].value,
+          checkTime: inputs[0].value.trim(),
+          weekday: selects[1].value,
+          startTime: inputs[1].value.trim(),
+          name: inputs[2].value.trim(),
+          clubId: inputs[3].value.trim()
+        };
+      });
+
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = 'Saving...';
+      statusEl.style.color = '#2563eb';
+
+      try {
+        const res = await fetch('/api/schedule', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+
+        if (res.ok) {
+          statusEl.textContent = 'Saved successfully!';
+          statusEl.style.color = '#10b981';
+        } else {
+          throw new Error();
+        }
+      } catch {
+        statusEl.textContent = 'Failed to save.';
+        statusEl.style.color = '#ef4444';
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  schedule-app:
+    build: .
+    container_name: schedule_manager
+    ports:
+      - "3010:3000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
