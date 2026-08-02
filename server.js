@@ -6,7 +6,12 @@ const app = express();
 const PORT = 3000;
 
 // const FILE_PATH = path.join(__dirname, 'data', 'schedule.json');
-const FILE_PATH = process.env.SCHEDULE_FILE_PATH || path.join(__dirname, 'data', 'schedule.json');
+const SCHEDULE_FILE_NAME = process.env.SCHEDULE_FILE_NAME;
+const SCHEDULE_FILE_PATH = process.env.SCHEDULE_FILE_PATH;
+console.log(`Using schedule file name from environment variable: ${SCHEDULE_FILE_NAME}`);
+console.log(`Using schedule file path from environment variable: ${SCHEDULE_FILE_PATH}`);
+
+const FILE_PATH = path.join(SCHEDULE_FILE_PATH, SCHEDULE_FILE_NAME);
 console.log (`Using schedule file path: ${FILE_PATH}`);
 app.use(express.json());
 app.use(express.static('public'));
