@@ -6,6 +6,7 @@ COPY package*.json ./
 RUN npm install --production
 
 COPY . .
+COPY .env .env
 
 EXPOSE 3000
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
@@ -8,6 +9,12 @@ const PORT = 3000;
 // const FILE_PATH = path.join(__dirname, 'data', 'schedule.json');
 const SCHEDULE_FILE_NAME = process.env.SCHEDULE_FILE_NAME;
 const SCHEDULE_FILE_PATH = process.env.SCHEDULE_FILE_PATH;
+if (!SCHEDULE_FILE_NAME) {
+  throw new Error("Environment variable SCHEDULE_FILE_NAME is required");
+}
+if (!SCHEDULE_FILE_PATH) {
+  throw new Error("Environment variable SCHEDULE_FILE_PATH is required");
+}
 console.log(`Using schedule file name from environment variable: ${SCHEDULE_FILE_NAME}`);
 console.log(`Using schedule file path from environment variable: ${SCHEDULE_FILE_PATH}`);
 
