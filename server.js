@@ -7,7 +7,7 @@ const PORT = 3000;
 
 // const FILE_PATH = path.join(__dirname, 'data', 'schedule.json');
 const FILE_PATH = process.env.SCHEDULE_FILE_PATH || path.join(__dirname, 'data', 'schedule.json');
-
+console.log (`Using schedule file path: ${FILE_PATH}`);
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -42,4 +42,5 @@ app.post('/api/schedule', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+
 });
