@@ -102,5 +102,29 @@
     "startTime": "08:00",
     "name": "test",
     "clubId": "1"
+  },
+  {
+    "checkday": "saturday",
+    "checkTime": "09:30",
+    "weekday": "monday",
+    "startTime": "07:30:00",
+    "name": "sadaDad",
+    "clubId": "1"
+  },
+  {
+    "checkday": "saturday",
+    "checkTime": "09:30",
+    "weekday": "monday",
+    "startTime": "07:30:00",
+    "name": "sadasdasdasfcxadv",
+    "clubId": "1"
+  },
+  {
+    "checkday": "saturday",
+    "checkTime": "11:30",
+    "weekday": "monday",
+    "startTime": "11:30:00",
+    "name": "999991010101",
+    "clubId": "1"
   }
 ]

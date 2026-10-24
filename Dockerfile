@@ -5,8 +5,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 
-COPY . .
-COPY .env .env
+COPY ./server.js .
+COPY ../public/index.html .
 
 EXPOSE 3000
 

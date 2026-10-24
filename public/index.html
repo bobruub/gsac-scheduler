@@ -193,8 +193,9 @@
         } else {
           throw new Error();
         }
-      } catch {
-        statusEl.textContent = 'Failed to save.';
+      } catch (error) {
+        console.error('Error saving data:', error);
+        statusEl.textContent = `Failed to save. ${error.message}`;
         statusEl.style.color = '#ef4444';
       }
     }
